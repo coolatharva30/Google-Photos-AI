@@ -1,0 +1,23 @@
+{
+    "cSpell.words": [
+        "autoflush",
+        "sessionmaker",
+        "themeprovider"
+    ],
+    "sqltools.connections": [
+        {
+            "mysqlOptions": {
+                "authProtocol": "default",
+                "enableSsl": "Disabled"
+            },
+            "ssh": "Disabled",
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 3306,
+            "driver": "MySQL",
+            "name": "KDAC local",
+            "database": "kdac_db",
+            "username": "KD1-Atharva-93000"
+        }
+    ]
+}
