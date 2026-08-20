@@ -2,8 +2,11 @@ from sqlalchemy.orm import Session
 from app.services.photo_service import create_photo_table_for_user
 from app.repositories.users_repository import (
     create_user,
-    get_user_by_email
+    get_user_by_email,
+    find_user_by_credentials
 )
+
+
 
 def register_user(db: Session, user_data):
 
@@ -18,4 +21,22 @@ def register_user(db: Session, user_data):
 
     user = create_user(db, user_data)
     create_photo_table_for_user(user.id)
+    return user
+
+
+def authenticate_user(
+    db,
+    email: str,
+    password: str
+):
+    user = find_user_by_credentials(
+        db,
+        email,
+        password
+    )
+
+    if user is None:
+        raise ValueError(
+            "Invalid email or password"
+        )
     return user

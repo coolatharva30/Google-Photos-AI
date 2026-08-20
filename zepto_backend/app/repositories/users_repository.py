@@ -16,6 +16,27 @@ def create_user(db: Session, user_data):
 
     return user
 
+def find_user_by_credentials(
+        db:Session,
+        email: str,
+        password: str
+):
+    user = (
+        db.query(User)
+        .filter(
+            User.email == email,
+            User.password == password
+        ).first()
+    )
 
+    return user
+
+
+
+
+
+
+
+    
 def get_user_by_email(db: Session, email: str):
     return db.query(User).filter(User.email == email).first()

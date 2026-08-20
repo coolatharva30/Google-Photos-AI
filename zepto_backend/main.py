@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.database import Base, engine
 from app.routers.users_router import router as user_router
+from app.routers.photo_router import router as photo_router
 
 # Import models so SQLAlchemy knows about them
 from app.models.users import User
@@ -25,8 +26,9 @@ app.add_middleware(
 )
 
 # Register router
-app.include_router(user_router, prefix="/users")
+app.include_router(user_router)
 
+app.include_router(photo_router,prefix="/photos")
 
 @app.get("/")
 def home():
