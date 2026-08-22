@@ -3,7 +3,8 @@ from app.repositories.photo_repository import create_user_photo_table
 from app.repositories.photo_repository import(
     save_photo,
     get_photo,
-    get_user_photos
+    get_user_photos,
+    delete_photo
 )
 
 
@@ -49,6 +50,22 @@ def get_single_photo(
         photo_id=photo_id
     )
 
+
+def delete_single_photo(
+        user_id: int,
+        photo_id: int
+):
+    deleted_row = delete_photo(
+        user_id=user_id,
+        photo_id=photo_id
+    )
+
+    if deleted_row == 0:
+        raise ValueError("Photo not found")
+
+    return  {
+        "message": "Photo deleted successfully"
+    }
 
 
 

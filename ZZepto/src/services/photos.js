@@ -3,7 +3,7 @@ import { BASE_URL } from "./config"
 
 export async function uploadPhoto(userId, file){
 
-    const formData = new formData();
+    const formData = new FormData();
 
     formData.append("file", file);
 
@@ -18,7 +18,7 @@ export async function uploadPhoto(userId, file){
 export async function getPhotos(userId) {
 
     const response = await axios.get(
-        `${BASEURL}photos/?user_id=${userId}`
+        `${BASE_URL}photos/?user_id=${userId}`
     );
 
     return response.data.data;
@@ -29,4 +29,12 @@ export function getPhotoUrl(
     photoId
 ){
     return `${BASE_URL}photos/${photoId}?user_id=${userId}`
+}
+
+export async function deletePhoto(
+    userId,
+    photoId
+) {
+    const response = await axios.delete(`${BASE_URL}photos/${photoId}?user_id=${userId}`);
+    return response.data;
 }

@@ -10,7 +10,8 @@ from fastapi.responses import Response
 from app.services.photo_service import (
     upload_photo,
     get_photos,
-    get_single_photo
+    get_single_photo,
+    delete_single_photo
 )
 
 from app.schema.photo_schema import PhotoResponse
@@ -80,3 +81,21 @@ def get_image(
         content=photo["image_data"],
         media_type=photo["content_type"]
     )
+
+@router.delete("/{photo_id}")
+def delete_photo(
+    photo_id: int,
+    user_id: int
+):
+    try:
+        return delete_single_photo(
+            user_id=user_id,
+            photo_id=photo_id
+        )
+
+    except ValueError as error:
+
+        raise HTTPException(
+            status_code=404,
+            detail=str(error)
+        )

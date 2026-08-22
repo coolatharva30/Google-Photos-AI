@@ -5,7 +5,8 @@ import { toast } from "react-toastify";
 import {
     uploadPhoto,
     getPhotos,
-    getPhotoUrl
+    getPhotoUrl,
+    deletePhoto
 } from "../services/photos";
 
 
@@ -39,7 +40,7 @@ function Photos() {
         try {
 
             const data = await getPhotos(user.uid);
-
+            console.log("Photo recieved:", data);
             setPhotos(data);
 
         } catch (error) {
@@ -65,12 +66,12 @@ function Photos() {
                 user.uid,
                 file
             );
-
+            
             toast.success(
                 "Photo uploaded successfully"
             );
 
-            loadPhotos();
+            await loadPhotos();
 
         } catch (error) {
 
@@ -82,6 +83,44 @@ function Photos() {
         }
     };
 
+
+    const handleDelete = async (photoId) => {
+        
+       
+        const confirmDelete = window.confirm(
+            "Are you sure you want to delete this photo?"
+        );
+
+        if (!confirmDelete) {
+            return;
+        }
+
+        try {
+            console.log("Calling deletePhoto...");
+            const response = await deletePhoto(
+                user.uid,
+                photoId
+            );
+            console.log("Delete response:", response);
+            toast.success(
+                "Photo deleted successfully"
+            );
+
+            setPhotos(prevPhotos =>
+                prevPhotos.filter(
+                    photo => photo.id !== photoId
+                )
+            );
+
+        } catch (error) {
+
+            toast.error(
+                error.response?.data?.detail ||
+                "Failed to delete photo"
+            );
+
+        }
+};
 
     const handleFileSelect = (event) => {
 
@@ -226,6 +265,16 @@ function Photos() {
                                             objectFit: "cover"
                                         }}
                                     />
+                                        <div className="p-2">
+
+                                            <button
+                                                className="btn btn-danger btn-sm w-100"
+                                                onClick={() => handleDelete(photo.id)}
+                                            >
+                                                🗑️ Delete
+                                            </button>
+
+                                        </div>
 
                                 </div>
 
