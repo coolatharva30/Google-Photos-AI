@@ -17,6 +17,7 @@ function Photos() {
     const fileInputRef = useRef(null);
 
     const [photos, setPhotos] = useState([]);
+    const [selectedPhoto, setSelectedPhoto] = useState(null);
 
     const user = JSON.parse(
         sessionStorage.getItem("user")
@@ -152,6 +153,60 @@ function Photos() {
 
         <div className="photos-page">
 
+
+
+            {selectedPhoto && (
+
+                <div
+                    onClick={() => setSelectedPhoto(null)}
+                    style={{
+                        position: "fixed",
+                        top: 0,
+                        left: 0,
+                        width: "100%",
+                        height: "100%",
+                        backgroundColor: "rgba(0, 0, 0, 0.9)",
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        zIndex: 1050,
+                        padding: "20px"
+                    }}
+                >
+
+                    <button
+                        onClick={() => setSelectedPhoto(null)}
+                        style={{
+                            position: "absolute",
+                            top: "20px",
+                            right: "30px",
+                            background: "transparent",
+                            border: "none",
+                            color: "white",
+                            fontSize: "35px",
+                            cursor: "pointer"
+                        }}
+                    >
+                        ×
+                    </button>
+
+                    <img
+                        src={getPhotoUrl(
+                            user.uid,
+                            selectedPhoto.id
+                        )}
+                        alt={selectedPhoto.filename}
+                        onClick={(event) => event.stopPropagation()}
+                        style={{
+                            maxWidth: "95%",
+                            maxHeight: "90%",
+                            objectFit: "contain"
+                        }}
+                    />
+
+                </div>
+
+            )}
             {/* HEADER */}
 
             <nav className="navbar navbar-light bg-white shadow-sm px-4">
@@ -259,10 +314,12 @@ function Photos() {
                                             photo.id
                                         )}
                                         alt={photo.filename}
+                                        onClick={() => setSelectedPhoto(photo)}
                                         style={{
                                             width: "100%",
                                             height: "220px",
-                                            objectFit: "cover"
+                                            objectFit: "cover",
+                                            cursor: "pointer"
                                         }}
                                     />
                                         <div className="p-2">
