@@ -19,7 +19,9 @@ def upload_photo(
         user_id :int,
         filename: str,
         content_type: str,
-        image_data: bytes
+        image_data: bytes,
+        latitude: float | None,
+        longitude: float | None
 ):
     if not content_type.startswith("image/"):
         raise ValueError("Only image files are allowed")
@@ -32,7 +34,9 @@ def upload_photo(
         user_id=user_id,
         filename=filename,
         content_type=content_type,
-        image_data=image_data
+        image_data=image_data,
+        latitude=latitude,
+        longitude=longitude
     )
 
 
