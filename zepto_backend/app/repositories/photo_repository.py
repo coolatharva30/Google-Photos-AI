@@ -18,7 +18,9 @@ def save_photo(
         user_id: int,
         filename: str,
         content_type: str,
-        image_data: bytes
+        image_data: bytes,
+        latitude: float | None,
+        longitude: float | None
 ):
 
     photo_table = create_photo_model(user_id)
@@ -31,7 +33,9 @@ def save_photo(
         statement = insert(photo_table).values(
             filename=filename,
             content_type=content_type,
-            image_data=image_data
+            image_data=image_data,
+            latitude=latitude,
+            longitude=longitude
         )
         connection.execute(statement)
         connection.commit()

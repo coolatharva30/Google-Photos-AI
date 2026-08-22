@@ -23,6 +23,8 @@ router = APIRouter(
 @router.post("/upload")
 async def upload(
     user_id: int,
+    latitude: float | None = None,
+    longitude: float | None = None,
     file: UploadFile = File(...)
 ):
     try:
@@ -32,7 +34,9 @@ async def upload(
             user_id=user_id,
             filename=file.filename,
             content_type=file.content_type,
-            image_data=image_data
+            image_data=image_data,
+            latitude=latitude,
+            longitude=longitude
         )
 
         return {

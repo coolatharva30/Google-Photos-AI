@@ -6,7 +6,7 @@ from sqlalchemy import (
     LargeBinary,
     DateTime,
     MetaData,
-   
+    Float,
 )
 from sqlalchemy.dialects.mysql import LONGBLOB
 from sqlalchemy.sql import func
@@ -47,10 +47,22 @@ def create_photo_model(user_id: int):
         ),
 
         Column(
+            "latitude",
+            Float,
+            nullable=True
+        ),
+
+        Column(
+            "longitude",
+            Float,
+            nullable=True
+        ),
+
+        Column(
             "created_at",
             DateTime,
             server_default=func.now()
         )
-     )
+    )
 
     return photo_table
