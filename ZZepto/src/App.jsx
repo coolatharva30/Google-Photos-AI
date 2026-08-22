@@ -9,6 +9,7 @@ import {Route, Routes } from 'react-router-dom'
 import Register from './components/Register'
 import Login from './components/Login'
 import Logout from './components/Logout'
+import Photos from './components/Photos'
 
 function App() {
    const [count, setCount] = useState(0)
@@ -23,12 +24,14 @@ function App() {
           <h1>Online Ordering System</h1>
         </div>
           <Routes>
+
             <Route index element={<Login />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register/>} />
             <Route path="/logout" element={<Logout/>} />
-            
-          </Routes>
+            <Route path="/photos" element={<Photos />} />
+
+          </Routes>~
     
          </ThemeProvider>
       </AuthProvider> 

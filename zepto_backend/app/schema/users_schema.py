@@ -8,7 +8,9 @@ class UserCreate(BaseModel):
     confirmPassword: str
     mobile: str
 
-
+class UserLogin(BaseModel):
+    email: EmailStr
+    passwd: str
 
 class UserResponse(BaseModel):
     id: int
@@ -19,4 +21,3 @@ class UserResponse(BaseModel):
     class Config:
         from_attributes = True
 
-        

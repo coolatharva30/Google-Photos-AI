@@ -24,7 +24,7 @@ function Login() {
         sessionStorage.setItem("user", JSON.stringify(user))
         setUser(user)
         toast.success("Welcome, " + user.name)
-        navigate("") 
+        navigate("/photos") 
     }
     catch(err) {
        toast.error(err.message)

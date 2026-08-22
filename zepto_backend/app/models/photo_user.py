@@ -5,8 +5,10 @@ from sqlalchemy import (
     String,
     LargeBinary,
     DateTime,
-    MetaData
+    MetaData,
+   
 )
+from sqlalchemy.dialects.mysql import LONGBLOB
 from sqlalchemy.sql import func
 
 def create_photo_model(user_id: int):
@@ -40,7 +42,7 @@ def create_photo_model(user_id: int):
 
         Column(
             "image_data",
-            LargeBinary,
+            LONGBLOB,
             nullable=False
         ),
 
