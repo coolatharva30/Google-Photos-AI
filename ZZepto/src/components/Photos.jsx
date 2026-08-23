@@ -9,6 +9,8 @@ import {
     deletePhoto
 } from "../services/photos";
 
+import "./Photos.css";
+
 
 function Photos() {
 
@@ -24,53 +26,72 @@ function Photos() {
     );
 
 
+    // =========================================================
+    // GET CURRENT LOCATION
+    // =========================================================
+
     const getCurrentLocation = () => {
 
         return new Promise((resolve, reject) => {
-            if(!navigator.geolocation){
+
+            if (!navigator.geolocation) {
+
                 reject(
-                    new Error("Geolocation is not supported by this browser")
+                    new Error(
+                        "Geolocation is not supported by this browser"
+                    )
                 );
+
                 return;
             }
 
             navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    console.log(
-                    "Raw latitude:",
-                    position.coords.latitude
-                );
 
-                console.log(
-                    "Raw longitude:",
-                    position.coords.longitude
-                );
+                (position) => {
+
+                    console.log(
+                        "Raw latitude:",
+                        position.coords.latitude
+                    );
+
+                    console.log(
+                        "Raw longitude:",
+                        position.coords.longitude
+                    );
+
                     resolve({
-                        latitude:position.coords.latitude,
-                        longitude:position.coords.longitude,
+                        latitude:
+                            position.coords.latitude,
+
+                        longitude:
+                            position.coords.longitude
                     });
                 },
 
                 (error) => {
-                    reject(error)
+                    reject(error);
                 },
+
                 {
-                enableHighAccuracy: true,
-                timeout: 10000,
-                maximumAge: 0
-            }
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0
+                }
             );
         });
     };
 
 
-
-
+    // =========================================================
+    // LOAD PHOTOS
+    // =========================================================
 
     useEffect(() => {
 
         if (!user) {
+
             navigate("/login");
+
             return;
         }
 
@@ -84,19 +105,32 @@ function Photos() {
         try {
 
             const data = await getPhotos(user.uid);
-            console.log("Photo recieved:", data);
+
+            console.log(
+                "Photos received:",
+                data
+            );
+
             setPhotos(data);
 
         } catch (error) {
+
+            console.error(
+                "Load photos error:",
+                error
+            );
 
             toast.error(
                 error.response?.data?.detail ||
                 "Unable to load photos"
             );
-
         }
     };
 
+
+    // =========================================================
+    // UPLOAD PHOTO
+    // =========================================================
 
     const handleUpload = async (file) => {
 
@@ -105,16 +139,27 @@ function Photos() {
         }
 
         try {
-            const location = await getCurrentLocation();
-            console.log("Latitude:", location.latitude);
-            console.log("Longitude:", location.longitude);
+
+            const location =
+                await getCurrentLocation();
+
+            console.log(
+                "Latitude:",
+                location.latitude
+            );
+
+            console.log(
+                "Longitude:",
+                location.longitude
+            );
+
             await uploadPhoto(
                 user.uid,
                 file,
                 location.latitude,
                 location.longitude
             );
-            
+
             toast.success(
                 "Photo uploaded successfully"
             );
@@ -123,158 +168,230 @@ function Photos() {
 
         } catch (error) {
 
+            console.error(
+                "Upload error:",
+                error
+            );
+
             toast.error(
                 error.response?.data?.detail ||
                 "Upload failed"
             );
-
         }
     };
 
 
+    // =========================================================
+    // FILE SELECT
+    // =========================================================
+
+    const handleFileSelect = (event) => {
+
+        const file =
+            event.target.files[0];
+
+        handleUpload(file);
+
+        event.target.value = "";
+    };
+
+
+    // =========================================================
+    // DELETE PHOTO
+    // =========================================================
+
     const handleDelete = async (photoId) => {
-        
-       
-        const confirmDelete = window.confirm(
-            "Are you sure you want to delete this photo?"
-        );
+
+        const confirmDelete =
+            window.confirm(
+                "Are you sure you want to delete this photo?"
+            );
 
         if (!confirmDelete) {
             return;
         }
 
         try {
-            console.log("Calling deletePhoto...");
-            const response = await deletePhoto(
-                user.uid,
+
+            console.log(
+                "Deleting photo:",
                 photoId
             );
-            console.log("Delete response:", response);
+
+            const response =
+                await deletePhoto(
+                    user.uid,
+                    photoId
+                );
+
+            console.log(
+                "Delete response:",
+                response
+            );
+
             toast.success(
                 "Photo deleted successfully"
             );
 
-            setPhotos(prevPhotos =>
+            setPhotos((prevPhotos) =>
                 prevPhotos.filter(
-                    photo => photo.id !== photoId
+                    (photo) =>
+                        photo.id !== photoId
                 )
             );
 
+            if (
+                selectedPhoto &&
+                selectedPhoto.id === photoId
+            ) {
+                setSelectedPhoto(null);
+            }
+
         } catch (error) {
+
+            console.error(
+                "Delete error:",
+                error
+            );
 
             toast.error(
                 error.response?.data?.detail ||
                 "Failed to delete photo"
             );
-
         }
-};
-
-    const handleFileSelect = (event) => {
-
-        const file = event.target.files[0];
-
-        handleUpload(file);
-
-        event.target.value = "";
-
     };
 
+
+    // =========================================================
+    // LOGOUT
+    // =========================================================
 
     const handleLogout = () => {
 
         sessionStorage.removeItem("token");
+
         sessionStorage.removeItem("user");
 
         navigate("/login");
-
     };
 
+
+    // =========================================================
+    // NOT LOGGED IN
+    // =========================================================
 
     if (!user) {
         return null;
     }
 
 
+    // =========================================================
+    // UI
+    // =========================================================
+
     return (
 
         <div className="photos-page">
 
 
+            {/* =====================================================
+                FULL SCREEN PHOTO VIEW
+            ====================================================== */}
 
             {selectedPhoto && (
 
                 <div
-                    onClick={() => setSelectedPhoto(null)}
-                    style={{
-                        position: "fixed",
-                        top: 0,
-                        left: 0,
-                        width: "100%",
-                        height: "100%",
-                        backgroundColor: "rgba(0, 0, 0, 0.9)",
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        zIndex: 1050,
-                        padding: "20px"
-                    }}
+                    className="photo-viewer"
+                    onClick={() =>
+                        setSelectedPhoto(null)
+                    }
                 >
 
+                    {/* CLOSE BUTTON */}
+
                     <button
-                        onClick={() => setSelectedPhoto(null)}
-                        style={{
-                            position: "absolute",
-                            top: "20px",
-                            right: "30px",
-                            background: "transparent",
-                            border: "none",
-                            color: "white",
-                            fontSize: "35px",
-                            cursor: "pointer"
-                        }}
+                        className="photo-viewer-close"
+                        onClick={() =>
+                            setSelectedPhoto(null)
+                        }
                     >
                         ×
                     </button>
 
+
+                    {/* LARGE PHOTO */}
+
                     <img
+                        className="photo-viewer-image"
+
                         src={getPhotoUrl(
                             user.uid,
                             selectedPhoto.id
                         )}
-                        alt={selectedPhoto.filename}
-                        onClick={(event) => event.stopPropagation()}
-                        style={{
-                            maxWidth: "95%",
-                            maxHeight: "90%",
-                            objectFit: "contain"
-                        }}
+
+                        alt={
+                            selectedPhoto.filename
+                        }
+
+                        onClick={(event) =>
+                            event.stopPropagation()
+                        }
                     />
 
                 </div>
-
             )}
-            {/* HEADER */}
 
-            <nav className="navbar navbar-light bg-white shadow-sm px-4">
 
-                <div>
+            {/* =====================================================
+                HEADER
+            ====================================================== */}
 
-                    <h4 className="mb-0">
-                        My Photos
-                    </h4>
+            <nav className="photos-navbar">
+
+
+                {/* LEFT SIDE */}
+
+                <div className="photos-logo">
+
+                    <span className="photos-logo-icon">
+                        📷
+                    </span>
+
+                    <span className="photos-logo-text">
+                        Photos
+                    </span>
 
                 </div>
 
 
-                <div className="d-flex align-items-center gap-3">
+                {/* RIGHT SIDE */}
 
-                    <span>
-                        Hi, <strong>{user.name}</strong>
+                <div className="photos-user-section">
+
+
+                    {/* USER NAME */}
+
+                    <span className="photos-user-name">
+                        {user.name}
                     </span>
 
+
+                    {/* PROFILE CIRCLE */}
+
+                    <div
+                        className="photos-profile-circle"
+                        title={user.name}
+                    >
+                        {user.name
+                            ? user.name.charAt(0).toUpperCase()
+                            : "U"}
+                    </div>
+
+
+                    {/* LOGOUT */}
+
                     <button
-                        className="btn btn-outline-danger"
+                        className="photos-logout-button"
                         onClick={handleLogout}
                     >
                         Logout
@@ -285,18 +402,116 @@ function Photos() {
             </nav>
 
 
-            {/* BODY */}
+            {/* =====================================================
+                MAIN CONTENT
+            ====================================================== */}
 
-            <div className="container mt-4">
+            <main className="photos-main">
 
-                {/* UPLOAD AREA */}
 
-                <div className="card p-4 mb-4">
+                {/* =================================================
+                    UPLOAD SECTION
+                ================================================== */}
 
-                    <div className="d-flex gap-2">
+                <section className="upload-card">
+
+                    <div className="upload-card-content">
+
+
+                        {/* LEFT */}
+
+                        <div>
+
+                            <h5 className="upload-title">
+                                Add photos
+                            </h5>
+
+                            <small className="upload-description">
+                                Upload photos to your gallery
+                            </small>
+
+                        </div>
+
+
+                        {/* RIGHT */}
+
+                        <div>
+
+                            <button
+                                className="upload-button"
+                                onClick={() =>
+                                    fileInputRef.current.click()
+                                }
+                            >
+                                📁 Upload Photo
+                            </button>
+
+
+                            <input
+                                ref={fileInputRef}
+                                type="file"
+                                accept="image/*"
+                                className="hidden-file-input"
+                                onChange={
+                                    handleFileSelect
+                                }
+                            />
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+                {/* =================================================
+                    PHOTO HEADER
+                ================================================== */}
+
+                <div className="photos-heading">
+
+                    <div>
+
+                        <h4 className="photos-title">
+                            Your Photos
+                        </h4>
+
+                        <small className="photos-count">
+                            {photos.length}{" "}
+
+                            {photos.length === 1
+                                ? "photo"
+                                : "photos"}
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+                {/* =================================================
+                    EMPTY GALLERY
+                ================================================== */}
+
+                {photos.length === 0 ? (
+
+                    <div className="empty-gallery">
+
+                        <div className="empty-gallery-icon">
+                            🖼️
+                        </div>
+
+                        <h5>
+                            No photos yet
+                        </h5>
+
+                        <p className="empty-gallery-text">
+                            Upload your first photo
+                            to get started.
+                        </p>
 
                         <button
-                            className="btn btn-primary"
+                            className="upload-button"
                             onClick={() =>
                                 fileInputRef.current.click()
                             }
@@ -304,83 +519,66 @@ function Photos() {
                             📁 Upload Photo
                         </button>
 
-                        <input
-                            ref={fileInputRef}
-                            type="file"
-                            accept="image/*"
-                            style={{
-                                display: "none"
-                            }}
-                            onChange={
-                                handleFileSelect
-                            }
-                        />
-
-                    </div>
-
-                </div>
-
-
-                {/* PHOTO GRID */}
-
-                <h4 className="mb-3">
-                    Your Photos
-                </h4>
-
-
-                {photos.length === 0 ? (
-
-                    <div className="text-center mt-5">
-
-                        <h5>
-                            No photos yet
-                        </h5>
-
-                        <p>
-                            Upload your first photo.
-                        </p>
-
                     </div>
 
                 ) : (
 
-                    <div className="row g-3">
 
-                        {photos.map(photo => (
+                    /* =================================================
+                       GOOGLE PHOTOS STYLE GRID
+                    ================================================== */
+
+                    <div className="photos-grid">
+
+                        {photos.map((photo) => (
 
                             <div
                                 key={photo.id}
-                                className="col-6 col-md-4 col-lg-3"
+                                className="photo-thumbnail"
                             >
 
-                                <div className="card">
 
-                                    <img
-                                        src={getPhotoUrl(
-                                            user.uid,
+                                {/* PHOTO */}
+
+                                <img
+                                    src={getPhotoUrl(
+                                        user.uid,
+                                        photo.id
+                                    )}
+
+                                    alt={
+                                        photo.filename
+                                    }
+
+                                    onClick={() =>
+                                        setSelectedPhoto(
+                                            photo
+                                        )
+                                    }
+
+                                    className="photo-thumbnail-image"
+                                />
+
+
+                                {/* DELETE BUTTON */}
+
+                                <button
+                                    className="photo-delete-button"
+
+                                    onClick={(event) => {
+
+                                        event.stopPropagation();
+
+                                        handleDelete(
                                             photo.id
-                                        )}
-                                        alt={photo.filename}
-                                        onClick={() => setSelectedPhoto(photo)}
-                                        style={{
-                                            width: "100%",
-                                            height: "220px",
-                                            objectFit: "cover",
-                                            cursor: "pointer"
-                                        }}
-                                    />
-                                        <div className="p-2">
+                                        );
 
-                                            <button
-                                                className="btn btn-danger btn-sm w-100"
-                                                onClick={() => handleDelete(photo.id)}
-                                            >
-                                                🗑️ Delete
-                                            </button>
+                                    }}
 
-                                        </div>
-
-                                </div>
+                                    title="Delete photo"
+                                >
+                                    🗑️
+                                </button>
 
                             </div>
 
@@ -390,7 +588,7 @@ function Photos() {
 
                 )}
 
-            </div>
+            </main>
 
         </div>
     );
