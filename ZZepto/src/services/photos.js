@@ -2,13 +2,15 @@ import axios from "axios";
 import { BASE_URL } from "./config"
 
 export async function uploadPhoto(userId, file,latitude,longitude){
-
+    console.log("photos.js userId:", userId);
+    console.log("photos.js latitude:", latitude);
+    console.log("photos.js longitude:", longitude);
     const formData = new FormData();
 
     formData.append("file", file);
 
     const response = await axios.post(
-        `${BASE_URL}photos/upload?user_id=${userId}&${latitude}&longitude=${longitude}`,
+        `${BASE_URL}photos/upload?user_id=${userId}&latitude=${latitude}&longitude=${longitude}`,
         formData
     );
 

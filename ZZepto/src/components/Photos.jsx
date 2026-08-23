@@ -36,6 +36,15 @@ function Photos() {
 
             navigator.geolocation.getCurrentPosition(
                 (position) => {
+                    console.log(
+                    "Raw latitude:",
+                    position.coords.latitude
+                );
+
+                console.log(
+                    "Raw longitude:",
+                    position.coords.longitude
+                );
                     resolve({
                         latitude:position.coords.latitude,
                         longitude:position.coords.longitude,
@@ -44,7 +53,12 @@ function Photos() {
 
                 (error) => {
                     reject(error)
-                }
+                },
+                {
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 0
+            }
             );
         });
     };
@@ -92,7 +106,8 @@ function Photos() {
 
         try {
             const location = await getCurrentLocation();
-            
+            console.log("Latitude:", location.latitude);
+            console.log("Longitude:", location.longitude);
             await uploadPhoto(
                 user.uid,
                 file,
