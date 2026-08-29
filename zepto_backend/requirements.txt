@@ -1,0 +1,5 @@
+# azure-functions-core-tools
+azure-functions
+azure-functions-durable
+sqlalchemy
+pydantic

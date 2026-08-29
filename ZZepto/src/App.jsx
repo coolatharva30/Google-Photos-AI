@@ -21,7 +21,7 @@ function App() {
 
 
          <div className="d-flex justify-content-center">
-          <h1>Online Ordering System</h1>
+          <h1>Photos</h1>
         </div>
           <Routes>
 
