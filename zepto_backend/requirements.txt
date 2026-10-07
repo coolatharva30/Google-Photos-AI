@@ -3,3 +3,11 @@ azure-functions
 azure-functions-durable
 sqlalchemy
 pydantic
+
+
+
+groq
+python-dotenv
+pyodbc
+
+requests

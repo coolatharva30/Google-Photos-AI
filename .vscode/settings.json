@@ -15,7 +15,7 @@
             "server": "localhost",
             "port": 3306,
             "driver": "MySQL",
-            "name": "KDAC local",
+            "name": "KDAC",
             "database": "kdac_db",
             "username": "KD1-Atharva-93000"
         }
