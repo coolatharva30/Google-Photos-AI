@@ -99,3 +99,11 @@ def answer_activity(input_data):
     )
 
     return execute_answer_activity(input_data)
+
+
+@app.activity_trigger(input_name="payload")
+def clarification_activity(payload: dict) -> dict:
+
+    from activities.clarification_activity import clarification_activity
+   
+    return clarification_activity(payload)

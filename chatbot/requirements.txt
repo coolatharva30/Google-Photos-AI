@@ -16,3 +16,6 @@ pyodbc
 
 requests
 pymysql
+pyyaml
+
+yaml
