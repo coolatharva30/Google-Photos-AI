@@ -107,3 +107,16 @@ def clarification_activity(payload: dict) -> dict:
     from activities.clarification_activity import clarification_activity
    
     return clarification_activity(payload)
+
+# =========================================================
+# PLANNER ACTIVITY
+# =========================================================
+
+@app.activity_trigger(input_name="input_data")
+def planner_activity(input_data: dict):
+
+    from activities.planner_activity import (
+        planner_activity as execute_planner_activity
+    )
+
+    return execute_planner_activity(input_data)

@@ -39,7 +39,7 @@ def orchestrator_function(context):
             payload
         )
    
-    logging.info("clarification activity called")
+    logging.info("clarification activity called: %s",result)
     decision = result.get("decision")
     
     if decision not in {
@@ -84,55 +84,62 @@ def orchestrator_function(context):
 
     
     
+    
     if decision == "ready":
-
         route_result = yield context.call_activity(
-                "router_activity",
-                {
-                    "question": question
-                }
-            )
-       
-            # -------------------------
-            # STEP 2
-            # Check whether SQL is required
-            # -------------------------
+            "router_activity",
+            {"question": latest_question}
+        )
 
-        if not route_result["use_sql"]:
+        if not route_result.get("use_sql", False):
+            return {
+                "status": "completed",
+                "session_id": session_id,
+                "reply": (
+                    "This question does not require database access."
+                )
+            }
 
-                return {
-                    "answer": (
-                        "I currently only have access to "
-                        "the SQL Server data source, and "
-                        "your question does not appear to "
-                        "require SQL data."
-                    )
-                }
-                
-            # -------------------------
-            # STEP 3
-            # Retrieve SQL data
-            # -------------------------
+        planner_input = {
+            "question": latest_question,
+            "conversation_history": conversation_history
+        }
+
+        logging.info("Calling planner_activity")
+        plan = yield context.call_activity(
+            "planner_activity",
+            planner_input
+        )
+        logging.info("Planner activity returned: %s", plan)
+
+        if not isinstance(plan, dict) or plan.get("status") == "error":
+            return {
+                "status": "failed",
+                "session_id": session_id,
+                "message": (
+                    plan.get("message", "Planner failed.")
+                    if isinstance(plan, dict)
+                    else "Invalid planner response."
+                )
+            }
 
         sql_result = yield context.call_activity(
-                "sql_activity",
-                {
-                    "question": question
-                }
-            )
-        logging.info("SQL Activity called")
-            # -------------------------
-            # STEP 4
-            # Generate final answer
-            # -------------------------
+            "sql_activity",
+            {
+                "question": latest_question,
+                "conversation_history": conversation_history,
+                "plan": plan
+            }
+        )
+        logging.info("SQL activity returned: %s", sql_result)
 
         answer_result = yield context.call_activity(
-                "answer_activity",
-                {
-                    "question": question,
-                    "sql_result": sql_result
-                }
-            )
+            "answer_activity",
+            {
+                "question": latest_question,
+                "sql_result": sql_result
+            }
+        )
 
         return answer_result
 
