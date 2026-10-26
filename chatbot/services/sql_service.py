@@ -54,22 +54,15 @@ def validate_query(query):
             )
 
 
-def execute_query(query):
-
+def execute_query(query, parameters=None):
     validate_query(query)
-
     connection = get_connection()
 
     try:
-
         result = connection.execute(
-            text(query)
+            text(query),
+            parameters or {},
         )
-
-        rows = result.mappings().all()
-
-        return [dict(row) for row in rows]
-
+        return [dict(row) for row in result.mappings().all()]
     finally:
-
         connection.close()

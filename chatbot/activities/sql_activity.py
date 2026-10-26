@@ -1,81 +1,72 @@
+
 from magents.sql_agent import sql_agent
 from services.sql_service import execute_query
 import logging
 
-DATABASE_SCHEMA = """
-DATABASE: kdac_db
-
-TABLE: users_1
-Columns:
-id INT
-name VARCHAR
-email VARCHAR
-password VARCHAR
-mobile VARCHAR
-
-TABLE: products
-Columns:
-pid INT
-name VARCHAR
-price DECIMAL
-
-Dynamic user photo tables:
-Table pattern:
-    user_{user_id}_photos
-
-Each registered user has one table following this pattern.
-
-Example:
-    user_1_photos
-    user_2_photos
-    user_3_photos
-    ...
-    user_N_photos
-
-Columns in every user photo table:
-    id              INT
-    filename        VARCHAR
-    content_type    VARCHAR
-    image_data      VARBINARY
-    latitude        FLOAT
-    longitude       FLOAT
-    created_at      DATETIME
-
-IMPORTANT:
-- {user_id} must come from the authenticated application user.
-- Never allow the LLM to choose another user's ID.
-- The LLM must only query the current authenticated user's table.
-- Where the middle number N represents the user id so whenever
-  there is question about photos of the user then check the user
-  id and the number and accordingly query.
-- First of all see the user's id from users table and if the
-  question is about the users photo then the photos are stored
-  inside the user_N_photos check the user id and then query that
-  table which matches the "N" number in the user_N_photos table.
-"""
 
 def sql_activity(input_data: dict):
     question = input_data["question"]
-    plan = input_data["plan"]
+    planner_output = input_data["plan"]
 
-    n = plan.get("number_of_queries")
+    # Support the planner structure shown in your earlier logs.
+    plan = planner_output.get("result", planner_output)
 
-    logging.info(
-        "Inside Sql Activity the number is: %s",
-        n
-    )
+    steps = plan.get("steps", [])
+    results = []
 
-    result = []
+    if not steps:
+        raise ValueError("Planner returned no SQL steps.")
 
-    for i in range(n):
-        data = sql_agent(question, plan, result)
-        result.append(data)
+    # Run steps in the order supplied by the planner.
+    for step in steps:
+        step_id = step.get("step_id")
 
-        logging.info(
-            "Data from sql agent is : %s",
-            data
+        # Pass the current step and previously executed results.
+        agent_result = sql_agent(
+        question,
+            {
+                "current_step": step,
+                "plan": plan,
+            },
+            results,
         )
 
-    return {
-        "result":result
-    }
+        query = agent_result["query"]
+        parameters = agent_result.get("parameters", {})
+
+        if not query:
+            raise ValueError(
+                f"SQL agent returned an empty query for {step_id}."
+            )
+
+        logging.info(
+            "Executing SQL for step %s: %s",
+            step_id,
+            query,
+        )
+
+        # This assumes execute_query accepts a validated query string.
+        rows = execute_query(query, parameters)
+        if not rows and step_id == "step_1":
+            return {
+                "status": "not_found",
+                "message": "No user found with the provided name.",
+                "results": results,
+            }
+        step_result = {
+            "step_id": step_id,
+            "status": "success",
+            "query": query,
+            "data": rows,
+            "row_count": len(rows),
+        }
+
+        results.append(step_result)
+
+        logging.info(
+            "SQL step %s returned %d rows.",
+            step_id,
+            len(rows),
+        )
+
+    return {"result": results}

@@ -22,7 +22,7 @@ def load_prompt():
         return file.read()
 
 def planner_agent(input: dict) -> dict:
-    question = input.get("question"),
+    question = input.get("question")
     conversation_history = input.get("conversation_history")
 
     system_prompt = load_prompt()
@@ -60,5 +60,5 @@ def planner_agent(input: dict) -> dict:
     except Exception as exc:
         return {
             "message": f"Planner agent failed: {str(exc)}",
-            "result": result,
+            "result": result
         }
