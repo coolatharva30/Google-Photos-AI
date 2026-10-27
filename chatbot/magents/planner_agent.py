@@ -24,12 +24,14 @@ def load_prompt():
 def planner_agent(input: dict) -> dict:
     question = input.get("question")
     conversation_history = input.get("conversation_history")
+    user_id = input.get("user_id")
 
     system_prompt = load_prompt()
 
     user_prompt = {
         "question": question,
-        "conversation_history": conversation_history
+        "conversation_history": conversation_history,
+        "user_id": user_id
     }
 
     try:

@@ -10,6 +10,7 @@ def orchestrator_function(context):
     conversation_history = request.get("conversation_history", [])
     # task_state = request.get("task_state", {})
     latest_question = request.get("question", "")
+    user_id = request.get("user_id","")
 
     # -------------------------
     # STEP 1
@@ -102,7 +103,8 @@ def orchestrator_function(context):
 
         planner_input = {
             "question": latest_question,
-            "conversation_history": conversation_history
+            "conversation_history": conversation_history,
+            "user_id": user_id
         }
 
         logging.info("Calling planner_activity")
@@ -128,7 +130,8 @@ def orchestrator_function(context):
             {
                 "question": latest_question,
                 "conversation_history": conversation_history,
-                "plan": plan
+                "plan": plan,
+                "user_id":user_id
             }
         )
         logging.info("SQL activity returned: %s", sql_result)
