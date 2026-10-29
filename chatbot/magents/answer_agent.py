@@ -21,30 +21,18 @@ def load_prompt():
 
         return file.read()
 
-
-def generate_answer(
-    question,
-    sql_result
-):
-
+def generate_answer(question, sql_result, conversation_history=None):
     system_prompt = load_prompt()
 
     user_prompt = f"""
-User question:
-
+User's original question:
 {question}
 
+Conversation history, including clarification:
+{json.dumps(conversation_history or [], indent=2)}
 
-SQL Server result:
-
-{json.dumps(
-    sql_result,
-    indent=2,
-    default=str
-)}
+SQL result:
+{json.dumps(sql_result, indent=2, default=str)}
 """
 
-    return groq_service.generate(
-        system_prompt,
-        user_prompt
-    )
+    return groq_service.generate(system_prompt, user_prompt)

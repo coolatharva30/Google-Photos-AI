@@ -91,7 +91,7 @@ def orchestrator_function(context):
             "router_activity",
             {"question": latest_question}
         )
-
+        logging.info("Router result is: %s", route_result)
         if not route_result.get("use_sql", False):
             return {
                 "status": "completed",
@@ -140,6 +140,7 @@ def orchestrator_function(context):
             "answer_activity",
             {
                 "question": latest_question,
+                "conversation_history": conversation_history,
                 "sql_result": sql_result
             }
         )
