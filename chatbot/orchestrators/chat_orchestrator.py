@@ -27,11 +27,11 @@ def orchestrator_function(context):
             "original_question": question,
             "latest_question":latest_question,
             "conversation_history": conversation_history,
+            "user_id": user_id,
             # "task_state": {
             #     **task_state,        
             # },
             # "schema_context": request.get("schema_context", ""),
-            
         }
     
 

@@ -54,7 +54,20 @@ def validate_query(query):
             )
 
 
-def execute_query(query, parameters=None):
+def execute_query(query, parameters=None, user_id=None):
+    if (
+        isinstance(user_id, bool)
+        or not isinstance(user_id, int)
+        or user_id <= 0
+    ):
+        raise ValueError("A valid authenticated user_id is required")
+
+    if "USER_PHOTO_TABLE" in query:
+        query = query.replace(
+            "USER_PHOTO_TABLE",
+            f"user_{user_id}_photos"
+        )
+
     validate_query(query)
     connection = get_connection()
 

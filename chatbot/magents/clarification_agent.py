@@ -29,7 +29,7 @@ def clarification_agent(payload: dict) -> dict:
     original_question = payload.get("original_question", "")
     latest_question = payload.get("latest_question", "")
     conversation_history = payload.get("conversation_history", [])[-3:]
-    
+    user_id = payload.get("user_id", "")
 
     system_prompt = load_prompt()
 
@@ -37,6 +37,7 @@ def clarification_agent(payload: dict) -> dict:
         "original_question": original_question,
         "latest_message": latest_question,
         "conversation_history": conversation_history,
+        "user_id": user_id
         # "task_state": task_state,
         # "schema_context": schema_context+
     }

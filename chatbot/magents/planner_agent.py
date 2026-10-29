@@ -27,7 +27,7 @@ def planner_agent(input: dict) -> dict:
     user_id = input.get("user_id")
 
     system_prompt = load_prompt()
-
+ 
     user_prompt = {
         "question": question,
         "conversation_history": conversation_history,

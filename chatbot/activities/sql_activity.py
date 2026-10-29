@@ -184,6 +184,7 @@ def sql_activity(input_data: dict):
             rows = execute_query(
                 query,
                 parameters,
+                user_id=user_id,
                 # Add user_id to this call only if your execute_query
                 # function has been updated to accept it.
             )
